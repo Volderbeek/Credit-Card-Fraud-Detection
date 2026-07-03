@@ -5,11 +5,6 @@ fraudTest.csv
 fraudTrain.csv
 *.onnx
 
-# Jupyter Notebook checkpoints & Notebook files
-.ipynb_checkpoints
-*/.ipynb_checkpoints/*
-Credit-Card-Fraud-Detection.ipynb
-
 # Project Environment & Config Files
 environment.yml
 backend/environment.yml
