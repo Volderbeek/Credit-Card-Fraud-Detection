@@ -100,9 +100,12 @@ def predict():
         probs = preds[1]
         if isinstance(probs, np.ndarray):
             fraud_prob = max(0.0, min(1.0, float(probs[0, 1])))
-        else:
-            # Fallback for alternative or un-narrowed type representations
+        elif isinstance(probs, (list, tuple)):
+            # Fallback for alternative or un-narrowed type representations (e.g. list of dicts for ZipMap)
             fraud_prob = max(0.0, min(1.0, float(probs[0][1])))
+        else:
+            # Fallback/unexpected type representation
+            fraud_prob = 0.0
         legitimate_prob = 1.0 - fraud_prob
         
         # A simple risk classification
