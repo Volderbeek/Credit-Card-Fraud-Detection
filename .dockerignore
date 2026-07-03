@@ -1,0 +1,35 @@
+# Ignore version control and IDE configuration
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+pyrefly.toml
+
+# Ignore local python virtual environments and cache
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.pytest_cache/
+**/env/
+**/venv/
+**/.venv/
+**/.conda/
+
+# Ignore frontend build files and dependencies
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+
+# Ignore raw data files (ML model training data)
+fraudTest.csv
+fraudTrain.csv
+
+# Ignore logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

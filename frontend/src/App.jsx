@@ -5,7 +5,7 @@ import ScanForm from './components/ScanForm';
 import ScanResults from './components/ScanResults';
 import './App.css';
 
-const API_BASE = 'http://127.0.0.1:5000';
+const API_BASE = 'https://fraud-detection-backend-680456524697.us-central1.run.app';
 
 const CATEGORIES = [
   { id: 0, label: 'Entertainment', icon: '🎬' },

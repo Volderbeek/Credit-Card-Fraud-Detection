@@ -116,3 +116,48 @@ To help test and demonstrate the model's decision boundaries, the UI provides fo
 * **Safe Gym Membership** 💪: A standard fitness payment ($29.99) at noon. Yields **~5% fraud probability** (Low Risk).
 * **Suspicious Midnight Online** 🚨: A card-not-present internet shopping transaction ($950.00) at 11 PM. Yields **~95% fraud probability** (High Risk).
 * **Suspicious Late Night Gas** ⚠️: A gas station transaction ($22.00) at 3 AM. Yields **~90% fraud probability** (High Risk).
+
+---
+
+## 🌐 Deployment to Google Cloud Run
+
+The backend service is configured to be containerized and deployed to **Google Cloud Run** using Google Cloud Build. 
+
+### Prerequisites
+1. Install the [Google Cloud SDK (gcloud CLI)](https://cloud.google.com/sdk/docs/install).
+2. Ensure you have a Google Cloud Project with the **Cloud Run API** and **Cloud Build API** enabled.
+
+### Deploying the Backend
+We have provided automated scripts to handle the deployment. The build context is automatically set to the repository root so the Docker container can package `model.pkl`, while ignoring unnecessary files like frontend node dependencies and large raw CSV files via `.dockerignore`.
+
+#### Option A: Bash (Linux / macOS / Git Bash on Windows)
+Run the deploy script from the root or `backend/` directory:
+```bash
+chmod +x backend/deploy.sh
+./backend/deploy.sh
+```
+
+#### Option B: PowerShell (Windows)
+Run the deploy script in PowerShell:
+```powershell
+.\backend\deploy.ps1
+```
+
+### Configuration (Optional Environment Variables)
+You can customize the deployment by setting environment variables before running the scripts:
+- `GCP_PROJECT_ID`: Override or set the active GCP Project.
+- `GCP_SERVICE_NAME`: The name of the deployed service (default: `fraud-detection-backend`).
+- `GCP_REGION`: The GCP region to deploy to (default: `us-central1`).
+
+### Verifying the Deployment
+Once deployed, the script will output the Service URL (e.g., `https://fraud-detection-backend-xxxxxx.a.run.app`). 
+1. Open your browser and navigate to the health check endpoint: `https://<service-url>/api/health`.
+2. It should return a success JSON response confirming the model loaded correctly:
+   ```json
+   {
+     "model_loaded": true,
+     "status": "healthy"
+   }
+   ```
+3. Update the frontend `App.jsx` API configuration to point to this new Cloud Run URL instead of `localhost:5000`.
+
