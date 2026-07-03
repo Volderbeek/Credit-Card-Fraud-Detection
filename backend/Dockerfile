@@ -19,8 +19,8 @@ COPY backend/requirements.txt ./backend/requirements.txt
 # Install python dependencies
 RUN pip install --no-cache-dir -r ./backend/requirements.txt
 
-# Copy model.pkl (located at root of project context) to the container working directory
-COPY model.pkl ./model.pkl
+# Copy model.onnx (located at root of project context) to the container working directory
+COPY model.onnx ./model.onnx
 
 # Copy local backend code to the container working directory
 COPY backend/ ./backend/

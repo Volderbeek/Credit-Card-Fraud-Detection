@@ -3,6 +3,7 @@ model.pkl
 *.csv
 fraudTest.csv
 fraudTrain.csv
+*.onnx
 
 # Jupyter Notebook checkpoints & Notebook files
 .ipynb_checkpoints

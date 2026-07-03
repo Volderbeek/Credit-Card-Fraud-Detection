@@ -1,6 +1,6 @@
 import os
-import pickle
-import pandas as pd
+import numpy as np
+import onnxruntime as ort
 from datetime import datetime
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -10,15 +10,15 @@ CORS(app)  # Enable CORS for cross-origin requests from the React frontend
 
 # Resolve the absolute path to the model file
 current_dir = os.path.dirname(os.path.abspath(__file__))
-model_path = os.path.abspath(os.path.join(current_dir, '..', 'model.pkl'))
+model_path = os.path.abspath(os.path.join(current_dir, '..', 'model.onnx'))
 
-print(f"Loading model from {model_path}...")
+print(f"Loading ONNX model from {model_path}...")
 try:
-    with open(model_path, 'rb') as f:
-        model = pickle.load(f)
-    print("Model loaded successfully!")
+    # Load the ONNX model using CPUExecutionProvider
+    model = ort.InferenceSession(model_path, providers=['CPUExecutionProvider'])
+    print("ONNX model loaded successfully!")
 except Exception as e:
-    print(f"Error loading model: {e}")
+    print(f"Error loading ONNX model: {e}")
     model = None
 
 # Exact features used during model training
@@ -82,13 +82,28 @@ def predict():
             zip_code
         ] + cat_one_hot
         
-        # Predict using the model
-        df = pd.DataFrame([row], columns=COLUMNS)
-        pred_proba = model.predict_proba(df)
+        # Format input for ONNX (shape: [1, 22], type: float32)
+        input_data = np.array([row], dtype=np.float32)
         
-        # Extract probabilities
-        legitimate_prob = float(pred_proba[0][0])
-        fraud_prob = float(pred_proba[0][1])
+        # Get inputs and outputs from ONNX model session
+        input_name = model.get_inputs()[0].name
+        label_name = model.get_outputs()[0].name
+        probabilities_name = model.get_outputs()[1].name
+        
+        # Run prediction
+        preds = model.run([label_name, probabilities_name], {input_name: input_data})
+        
+        # Parse probabilities from the predicted output.
+        # Note: Under ONNX TreeEnsembleClassifier binary classification with post_transform=NONE,
+        # class 0 probability is sometimes returned as -p_1 instead of 1-p_1 due to operator specification.
+        # To be robust, we read the positive class probability (class 1) and calculate the negative class (class 0) as 1 - p_1.
+        probs = preds[1]
+        if isinstance(probs, np.ndarray):
+            fraud_prob = max(0.0, min(1.0, float(probs[0, 1])))
+        else:
+            # Fallback for alternative or un-narrowed type representations
+            fraud_prob = max(0.0, min(1.0, float(probs[0][1])))
+        legitimate_prob = 1.0 - fraud_prob
         
         # A simple risk classification
         risk_level = 'Low'
